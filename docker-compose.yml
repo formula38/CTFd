@@ -15,8 +15,8 @@ services:
       - ERROR_LOG=-
       - REVERSE_PROXY=true
     volumes:
-      - .data/CTFd/logs:/var/log/CTFd
-      - .data/CTFd/uploads:/var/uploads
+      - ctfd_logs:/var/log/CTFd
+      - ctfd_uploads:/var/uploads
       - .:/opt/CTFd:ro
     depends_on:
       - db
@@ -33,6 +33,8 @@ services:
       - 80:80
     depends_on:
       - ctfd
+    networks:
+        default:
 
   db:
     image: mariadb:10.11
@@ -44,17 +46,16 @@ services:
       - MARIADB_DATABASE=ctfd
       - MARIADB_AUTO_UPGRADE=1
     volumes:
-      - .data/mysql:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
     networks:
         internal:
-    # This command is required to set important mariadb defaults
     command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --wait_timeout=28800, --log-warnings=0]
 
   cache:
     image: redis:4
     restart: always
     volumes:
-    - .data/redis:/data
+      - redis_data:/data
     networks:
         internal:
 
@@ -62,3 +63,10 @@ networks:
     default:
     internal:
         internal: true
+
+volumes:
+  ctfd_logs:
+  ctfd_uploads:
+  mariadb_data:
+  redis_data:
+
